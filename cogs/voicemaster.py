@@ -473,6 +473,12 @@ class VoiceMaster(BaseCog):
         await self.db.execute("DELETE FROM vm_hubs WHERE channel_id = ?", channel.id)
 
     async def send_interface(self, guild: discord.Guild, channel: discord.TextChannel) -> None:
+        me = guild.me
+        if me is None:
+            raise BotError("No pude identificar al bot en este servidor.")
+        perms = channel.permissions_for(me)
+        if not perms.view_channel or not perms.send_messages:
+            raise BotError(f"Necesito **Ver canal** y **Enviar mensajes** en {channel.mention}.")
         if not HAS_V2:
             raise BotError("La interfaz necesita **discord.py 2.6** o superior: `pip install -U discord.py`.")
         thumbnail = guild.icon.with_size(256).url if guild.icon else None
