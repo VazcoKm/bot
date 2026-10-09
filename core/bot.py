@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import logging
 import time
-from typing import Dict
+from typing import Dict, Optional
 
 import discord
 from discord.ext import commands
@@ -53,11 +53,15 @@ class Bot(commands.Bot):
         self.db = Database(DB_PATH)
         self.prefixes: Dict[int, str] = {}
         self.started_at: float = time.time()
+        self.aliases: Dict[int, Dict[str, str]] = {}  # guild_id -> {alias: comando}
 
     async def setup_hook(self) -> None:
         await self.db.connect()
         rows = await self.db.fetchall("SELECT guild_id, value FROM settings WHERE key = 'prefix'")
         self.prefixes = {row["guild_id"]: json.loads(row["value"]) for row in rows}
+        self.aliases = {}
+        for row in await self.db.fetchall("SELECT guild_id, alias, command FROM aliases"):
+            self.aliases.setdefault(row["guild_id"], {})[row["alias"]] = row["command"]
         await self.load_cogs()
 
     async def load_cogs(self) -> None:
@@ -72,6 +76,23 @@ class Bot(commands.Bot):
             except Exception:
                 log.exception("No se pudo cargar el cog %s", path.stem)
         log.info("Cogs cargados: %d", loaded)
+
+    async def resolve_alias(self, message: discord.Message) -> Optional[str]:
+        """Si el mensaje empieza con un alias del servidor, devuelve el contenido reescrito con el comando real."""
+        table = self.aliases.get(message.guild.id) if message.guild else None
+        if not table:
+            return None
+        prefixes = await self.get_prefix(message)
+        for prefix in [prefixes] if isinstance(prefixes, str) else list(prefixes):
+            if message.content.startswith(prefix):
+                parts = message.content[len(prefix):].lstrip().split(None, 1)
+                if not parts:
+                    return None
+                target = table.get(parts[0].lower())
+                if target and self.get_command(parts[0]) is None:  # un comando real siempre gana
+                    return f"{prefix}{target}" + (f" {parts[1]}" if len(parts) > 1 else "")
+                return None
+        return None
 
     async def get_context(self, origin, *, cls=Context):
         return await super().get_context(origin, cls=cls)
@@ -94,6 +115,9 @@ class Bot(commands.Bot):
             except discord.HTTPException:
                 pass
             return
+        rewritten = await self.resolve_alias(message)
+        if rewritten is not None:
+            message.content = rewritten
         await self.process_commands(message)
 
     async def close(self) -> None:

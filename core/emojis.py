@@ -53,6 +53,17 @@ DEFAULTS: Dict[str, str] = {
     "nuke": "💥",
     "slowmode": "🐢",
     "voice": "🎙️",
+    # --- VoiceMaster (botones de la interfaz, en el orden de tu captura) ---
+    "vm_lock": "<:vm_lock:1557506611650629725>",
+    "vm_unlock": "<:vm_unlock:1557506675689394326>",
+    "vm_ghost": "<:vm_ghost:1557506762486063165>",
+    "vm_reveal": "<:vm_reveal:1557506813145129131>",
+    "vm_claim": "<:vm_claim:1557506915821559868>",
+    "vm_info": "<:vm_info:1557507208982569040>",
+    "vm_plus": "<:vm_plus:1557506988777279508>",
+    "vm_minus": "<:vm_minus:1557507076861730866>",
+    "vm_rename": "<:vm_rename:1557506862335664239>",
+    "vm_delete": "<:vm_delete:1557507147334688828>",
     # --- Utilidad ---
     "poll_yes": "👍",
     "poll_no": "👎",
@@ -71,6 +82,16 @@ FALLBACKS: Dict[str, str] = {
     "close": "🚫",
     "confirm": "✅",
     "cancel": "❌",
+    "vm_lock": "🔒",
+    "vm_unlock": "🔓",
+    "vm_ghost": "👻",
+    "vm_reveal": "👁️",
+    "vm_claim": "👑",
+    "vm_info": "📄",
+    "vm_plus": "➕",
+    "vm_minus": "➖",
+    "vm_rename": "✏️",
+    "vm_delete": "🗑️",
 }
 _CUSTOM = re.compile(r"^<a?:\w+:(\d+)>$")
 _CDN = re.compile(r"emojis/(\d{15,25})\.(\w+)")

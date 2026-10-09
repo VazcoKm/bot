@@ -295,7 +295,7 @@ class Moderation(BaseCog):
     # ------------------------------------------------------------------
     # Mutes (timeout de Discord)
     # ------------------------------------------------------------------
-    @commands.command(name="mute", aliases=["timeout", "tm"], usage="<miembro> [duración] [razón]")
+    @commands.command(name="mute", aliases=["timeout", "tm", "m"], usage="<miembro> [duración] [razón]")
     @commands.has_permissions(moderate_members=True)
     @commands.bot_has_permissions(moderate_members=True)
     async def mute(
@@ -392,7 +392,7 @@ class Moderation(BaseCog):
     # ------------------------------------------------------------------
     # Jail
     # ------------------------------------------------------------------
-    @commands.group(name="jail", invoke_without_command=True, usage="<miembro> [duración] [razón]")
+    @commands.group(name="jail", aliases=["j"], invoke_without_command=True, usage="<miembro> [duración] [razón]")
     @commands.has_permissions(moderate_members=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def jail(

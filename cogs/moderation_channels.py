@@ -95,7 +95,7 @@ class ModChannels(BaseCog):
     # ------------------------------------------------------------------
     # Lock / unlock / lockdown
     # ------------------------------------------------------------------
-    @commands.command(name="lock", usage="[#canal] [razón]")
+    @commands.command(name="lock", aliases=["l"], usage="[#canal] [razón]")
     @commands.has_permissions(manage_channels=True)
     @commands.bot_has_permissions(manage_channels=True)
     async def lock(self, ctx: Context, channel: Optional[discord.TextChannel] = None, *, reason: Optional[str] = None):
@@ -104,7 +104,7 @@ class ModChannels(BaseCog):
         await self._lock(channel, True, ctx.author, reason)
         await ctx.approve(f"{channel.mention} fue **bloqueado**.")
 
-    @commands.command(name="unlock", usage="[#canal] [razón]")
+    @commands.command(name="unlock", aliases=["ul"], usage="[#canal] [razón]")
     @commands.has_permissions(manage_channels=True)
     @commands.bot_has_permissions(manage_channels=True)
     async def unlock(self, ctx: Context, channel: Optional[discord.TextChannel] = None, *, reason: Optional[str] = None):
@@ -271,7 +271,7 @@ class ModChannels(BaseCog):
         )
         await ctx.approve(f"Se eliminaron **{len(deleted)}** mensajes.", delete_after=5)
 
-    @commands.group(name="purge", aliases=["clear", "c"], invoke_without_command=True, usage="<cantidad>")
+    @commands.group(name="purge", aliases=["clear", "c", "p"], invoke_without_command=True, usage="<cantidad>")
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True, read_message_history=True)
     async def purge(self, ctx: Context, amount: int):

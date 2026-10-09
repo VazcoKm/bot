@@ -120,7 +120,7 @@ class UtilityInfo(BaseCog):
     # ------------------------------------------------------------------
     # Grupo guild (como en Greed): sin subcomando muestra la ayuda paginada
     # ------------------------------------------------------------------
-    @commands.group(name="guild", aliases=["server"], invoke_without_command=True)
+    @commands.group(name="guild", aliases=["server", "g"], invoke_without_command=True)
     async def guild(self, ctx: Context):
         """Información y recursos del servidor."""
         await self.bot.get_cog("Help").show(ctx, ctx.command)
@@ -162,7 +162,7 @@ class UtilityInfo(BaseCog):
     # ------------------------------------------------------------------
     # Usuarios
     # ------------------------------------------------------------------
-    @commands.command(name="userinfo", aliases=["ui", "whois", "user"], usage="[usuario]")
+    @commands.command(name="userinfo", aliases=["ui", "whois", "user", "i"], usage="[usuario]")
     async def userinfo(self, ctx: Context, user: Optional[discord.User] = None):
         """Información de un usuario (acepta mención, ID o nombre)."""
         user = user or ctx.author
@@ -269,7 +269,7 @@ class UtilityInfo(BaseCog):
     # ------------------------------------------------------------------
     # Servidor
     # ------------------------------------------------------------------
-    @commands.command(name="serverinfo", aliases=["si", "guildinfo"])
+    @commands.command(name="serverinfo", aliases=["si", "guildinfo", "sinfo"])
     async def serverinfo(self, ctx: Context):
         """Información general del servidor: conteos, boosts, diseño y sistema."""
         g = ctx.guild

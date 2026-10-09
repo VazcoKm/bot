@@ -85,6 +85,28 @@ Si un emoji no es accesible (el bot no está en su servidor o fue borrado), los 
 en su lugar en vez de fallar. También puedes copiar `emojis.example.json`
 a `emojis.json` y editarlo a mano.
 
+## VoiceMaster
+
+`,vc setup` crea la categoría **VoiceMaster** con el canal `#interface` (la interfaz de botones) y el hub
+**Join to Create**. Quien entra al hub recibe su propio canal de voz y es su propietario; cuando queda vacío se
+borra. Los 10 botones de la interfaz siguen funcionando después de reiniciar el bot.
+
+- Botones: bloquear, desbloquear, ocultar (ghost), revelar, reclamar (si el dueño ya no está), información,
+  aumentar y reducir el límite de usuarios (con formulario), renombrar (con formulario) y eliminar.
+- Las respuestas de los botones son privadas (solo las ve quien pulsó) y llevan la barra arena.
+- Todo lo de los botones también existe como subcomando: `,vc lock`, `,vc rename <nombre>`, `,vc limit <n>`,
+  `,vc permit/reject <miembro>`, `,vc bitrate`, `,vc region`, `,vc drag`...
+- Administración (necesita Gestionar servidor): `setup`, `add`, `hubs`, `removehub`, `reset`, `temporary`,
+  `sendinterface` y `default` (plantilla del nombre, `{user}` = dueño; por defecto `Canal de {user}`).
+- El bot necesita los permisos Gestionar canales y Mover miembros. La interfaz requiere discord.py 2.6 o superior.
+
+## Alias
+
+Cada servidor puede crear atajos para cualquier comando (necesita Gestionar servidor):
+`,alias add un unban`, `,alias remove un`, `,alias list`, `,alias removeall unban`, `,alias reset`.
+Un alias nunca puede pisar un comando real ni un alias integrado (las letras sueltas `b`, `k`, `m`, `s`, `a`, `r`,
+`q`, `l`, `j`, `p`, `i`, `g`... ya son alias integrados). También sirven para subcomandos: `,alias add dar role add`.
+
 ## Estilo de los embeds
 
 Copiado de las capturas de Greed:
@@ -119,8 +141,8 @@ El formato de las respuestas vive en `core/embeds.py`; el del help, en `cogs/hel
 |-------------|---------:|------:|
 | Moderación  | 60       | 63    |
 | Utilidad    | 70       | 67    |
-| Servidor    | 60       | 3     |
-| Voicemaster | 25       | 0     |
+| Servidor    | 60       | 9     |
+| Voicemaster | 25       | 23    |
 | Setup       | 40       | 0     |
 | Logs        | 25       | 0     |
 | Seguridad   | 40       | 0     |

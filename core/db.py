@@ -72,6 +72,28 @@ CREATE TABLE IF NOT EXISTS todos (
 );
 CREATE INDEX IF NOT EXISTS idx_todos_user ON todos (user_id);
 
+CREATE TABLE IF NOT EXISTS aliases (
+    guild_id INTEGER NOT NULL,
+    alias    TEXT    NOT NULL,
+    command  TEXT    NOT NULL,
+    PRIMARY KEY (guild_id, alias)
+);
+
+CREATE TABLE IF NOT EXISTS vm_hubs (
+    channel_id INTEGER PRIMARY KEY,
+    guild_id   INTEGER NOT NULL,
+    created    INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_vm_hubs_guild ON vm_hubs (guild_id);
+
+CREATE TABLE IF NOT EXISTS vm_channels (
+    channel_id INTEGER PRIMARY KEY,
+    guild_id   INTEGER NOT NULL,
+    owner_id   INTEGER NOT NULL,
+    created_at REAL    NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_vm_channels_guild ON vm_channels (guild_id);
+
 CREATE TABLE IF NOT EXISTS jail_roles (
     guild_id INTEGER NOT NULL,
     user_id  INTEGER NOT NULL,

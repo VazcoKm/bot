@@ -206,7 +206,7 @@ class UtilityTools(BaseCog):
         except discord.HTTPException:
             pass
 
-    @commands.command(name="afk", usage="[razón]")
+    @commands.command(name="afk", aliases=["a", "away"], usage="[razón]")
     async def afk(self, ctx: Context, *, reason: Optional[str] = None):
         """Márcate como AFK: avisaré a quien te mencione y te quitaré el AFK al volver."""
         await self._ensure_afk_loaded()
@@ -226,9 +226,10 @@ class UtilityTools(BaseCog):
     async def _is_afk_command(self, message: discord.Message) -> bool:
         prefixes = await self.bot.get_prefix(message)
         prefixes = [prefixes] if isinstance(prefixes, str) else list(prefixes)
+        content = await self.bot.resolve_alias(message) or message.content
         for prefix in prefixes:
-            if message.content.startswith(prefix):
-                words = message.content[len(prefix):].strip().lower().split()
+            if content.startswith(prefix):
+                words = content[len(prefix):].strip().lower().split()
                 if words and words[0] == "afk":
                     return True
         return False
