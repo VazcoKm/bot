@@ -45,6 +45,7 @@ class ModVoice(BaseCog):
     @commands.bot_has_permissions(mute_members=True)
     async def vcunmute(self, ctx: Context, member: discord.Member, *, reason: Optional[str] = None):
         """Quita el silencio de micrófono a un miembro en voz."""
+        checks.ensure_hierarchy(ctx, member, "moderar")
         _voice_channel(member)
         await member.edit(mute=False, reason=cases.audit_reason(ctx.author, reason))
         await ctx.approve(f"**{member.name}** ya puede hablar en voz.")
@@ -64,6 +65,7 @@ class ModVoice(BaseCog):
     @commands.bot_has_permissions(deafen_members=True)
     async def vcundeafen(self, ctx: Context, member: discord.Member, *, reason: Optional[str] = None):
         """Quita el ensordecimiento a un miembro en voz."""
+        checks.ensure_hierarchy(ctx, member, "moderar")
         _voice_channel(member)
         await member.edit(deafen=False, reason=cases.audit_reason(ctx.author, reason))
         await ctx.approve(f"**{member.name}** ya puede escuchar en voz.")
@@ -83,6 +85,7 @@ class ModVoice(BaseCog):
     @commands.bot_has_permissions(move_members=True)
     async def vcmove(self, ctx: Context, member: discord.Member, channel: VoiceLike):
         """Mueve a un miembro a otro canal de voz."""
+        checks.ensure_hierarchy(ctx, member, "mover")
         _voice_channel(member)
         await member.move_to(channel, reason=cases.audit_reason(ctx.author, "vcmove"))
         await ctx.approve(f"**{member.name}** fue movido a {channel.mention}.")
@@ -92,6 +95,7 @@ class ModVoice(BaseCog):
     @commands.bot_has_permissions(move_members=True)
     async def drag(self, ctx: Context, member: discord.Member):
         """Trae a un miembro a tu canal de voz."""
+        checks.ensure_hierarchy(ctx, member, "mover")
         if ctx.author.voice is None or ctx.author.voice.channel is None:
             raise BotError("Tienes que estar en un canal de voz.")
         _voice_channel(member)
@@ -111,13 +115,15 @@ class ModVoice(BaseCog):
         if not members:
             raise BotError(f"{source.mention} está vacío.")
         moved = 0
+        skipped = 0
         for member in members:
             try:
+                checks.ensure_hierarchy(ctx, member, "mover")
                 await member.move_to(destination, reason=cases.audit_reason(ctx.author, "vcmoveall"))
                 moved += 1
-            except discord.HTTPException:
-                pass
-        await ctx.approve(f"Se movieron **{moved}** miembros de {source.mention} a {destination.mention}.")
+            except (discord.HTTPException, BotError):
+                skipped += 1
+        await ctx.approve(f"Se movieron **{moved}** miembros de {source.mention} a {destination.mention}." + (f" Se omitieron **{skipped}** por permisos o jerarquía." if skipped else ""))
 
     @commands.command(name="vckickall", aliases=["vcclear"], usage="[canal de voz]")
     @commands.has_permissions(move_members=True)
@@ -133,13 +139,15 @@ class ModVoice(BaseCog):
         if not members:
             raise BotError(f"{channel.mention} está vacío.")
         kicked = 0
+        skipped = 0
         for member in members:
             try:
+                checks.ensure_hierarchy(ctx, member, "desconectar")
                 await member.move_to(None, reason=cases.audit_reason(ctx.author, "vckickall"))
                 kicked += 1
-            except discord.HTTPException:
-                pass
-        await ctx.approve(f"Se desconectaron **{kicked}** miembros de {channel.mention}.")
+            except (discord.HTTPException, BotError):
+                skipped += 1
+        await ctx.approve(f"Se desconectaron **{kicked}** miembros de {channel.mention}." + (f" Se omitieron **{skipped}** por permisos o jerarquía." if skipped else ""))
 
 
 async def setup(bot) -> None:
