@@ -403,7 +403,7 @@ class UtilityTools(BaseCog):
         detail = f" ({', '.join(map(str, rolls[:20]))}{'…' if len(rolls) > 20 else ''}{f' {mod:+d}' if mod else ''})" if len(rolls) > 1 or mod else ""
         await ctx.approve(f"`{dice}` → **{total}**{detail}")
 
-    @commands.command(name="coinflip", aliases=["flip", "coin"])
+    @commands.command(name="coinflip", aliases=["flip"])
     async def coinflip(self, ctx: Context):
         """Lanza una moneda."""
         await ctx.approve(f"Salió **{random.choice(['cara', 'cruz'])}**")
