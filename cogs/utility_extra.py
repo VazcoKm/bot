@@ -244,7 +244,7 @@ class UtilityExtra(BaseCog):
             for name in names:
                 if name in existing: continue
                 callback=self._make_callback(name,category)
-                self.add_command(commands.Command(callback,name=name,help=f"Herramienta de {category.lower()}.",usage="[valor]"))
+                self.__cog_commands__ = (*self.__cog_commands__, commands.Command(callback, name=name, help=f"Herramienta de {category.lower()}.", usage="[valor]"))
                 existing.add(name)
     @staticmethod
     def _make_callback(action,category):
