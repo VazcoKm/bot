@@ -393,7 +393,7 @@ class UtilityTools(BaseCog):
             raise BotError("Dame al menos dos opciones separadas por `|` o comas.")
         await ctx.approve(f"Elijo **{truncate(random.choice(parts), 200)}**")
 
-    @commands.command(name="roll", aliases=["dice"], usage="[dados, ej. 2d6+3]")
+    @commands.command(name="roll", usage="[dados, ej. 2d6+3]")
     async def roll(self, ctx: Context, dice: str = "1d6"):
         """Tira dados: `roll 2d6+3`, `roll d20`."""
         try:
