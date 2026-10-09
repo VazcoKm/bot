@@ -11,7 +11,7 @@ from collections import defaultdict
 
 from core.bot import Bot
 
-META = 400  # objetivo total de comandos
+META = 300  # objetivo total de comandos
 
 
 async def main() -> None:
