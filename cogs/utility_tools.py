@@ -393,7 +393,7 @@ class UtilityTools(BaseCog):
             raise BotError("Dame al menos dos opciones separadas por `|` o comas.")
         await ctx.approve(f"Elijo **{truncate(random.choice(parts), 200)}**")
 
-    @commands.command(name="roll", aliases=["dice"], usage="[dados, ej. 2d6+3]")
+    @commands.command(name="roll", usage="[dados, ej. 2d6+3]")
     async def roll(self, ctx: Context, dice: str = "1d6"):
         """Tira dados: `roll 2d6+3`, `roll d20`."""
         try:
@@ -403,7 +403,7 @@ class UtilityTools(BaseCog):
         detail = f" ({', '.join(map(str, rolls[:20]))}{'…' if len(rolls) > 20 else ''}{f' {mod:+d}' if mod else ''})" if len(rolls) > 1 or mod else ""
         await ctx.approve(f"`{dice}` → **{total}**{detail}")
 
-    @commands.command(name="coinflip", aliases=["flip", "coin"])
+    @commands.command(name="coinflip", aliases=["flip"])
     async def coinflip(self, ctx: Context):
         """Lanza una moneda."""
         await ctx.approve(f"Salió **{random.choice(['cara', 'cruz'])}**")

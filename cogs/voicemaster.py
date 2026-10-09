@@ -181,19 +181,28 @@ class VoiceMaster(BaseCog):
     def _why(member: discord.abc.User, text: str) -> str:
         return cases.audit_reason(member, f"voicemaster {text}")
 
-    async def _own(self, member: discord.Member, *, need_owner: bool = True) -> Tuple[discord.VoiceChannel, object]:
-        """El canal temporal en el que está `member` y su registro; exige ser el propietario si need_owner."""
+    async def _own(
+        self, member: discord.Member, *, need_owner: bool = True, require_manage: bool = True
+    ) -> Tuple[discord.VoiceChannel, object]:
+        """Obtiene el canal temporal y valida propiedad y permisos del bot."""
         voice = getattr(member, "voice", None)
         if voice is None or voice.channel is None:
             raise BotError("Debes estar en tu **canal de voz** para usar esto.")
-        row = await self.db.fetchone("SELECT * FROM vm_channels WHERE channel_id = ?", voice.channel.id)
+        channel = voice.channel
+        row = await self.db.fetchone("SELECT * FROM vm_channels WHERE channel_id = ?", channel.id)
         if row is None:
             raise BotError("Este **canal de voz** no es un canal temporal de VoiceMaster.")
         if need_owner and row["owner_id"] != member.id:
             raise BotError("No eres el **propietario** de este **canal de voz**.")
-        return voice.channel, row
+        me = member.guild.me
+        if require_manage and (me is None or not channel.permissions_for(me).manage_channels):
+            raise BotError("No tengo **Gestionar canales** en este canal de voz. Revisa mis permisos del servidor y del canal.")
+        return channel, row
 
     async def _edit_overwrite(self, channel, target, reason: str, **changes) -> None:
+        me = channel.guild.me
+        if me is None or not channel.permissions_for(me).manage_channels:
+            raise BotError("No tengo **Gestionar canales** en este canal de voz. Revisa mis permisos del servidor y del canal.")
         overwrite = channel.overwrites_for(target)
         overwrite.update(**changes)
         await channel.set_permissions(target, overwrite=None if overwrite.is_empty() else overwrite, reason=reason)
@@ -281,7 +290,7 @@ class VoiceMaster(BaseCog):
         return "Ahora eres el **propietario** de este **canal de voz**"
 
     async def op_info(self, member: discord.Member) -> discord.Embed:
-        channel, row = await self._own(member, need_owner=False)
+        channel, row = await self._own(member, need_owner=False, require_manage=False)
         owner = member.guild.get_member(row["owner_id"])
         lines = [
             f"> **Bitrate:** {channel.bitrate // 1000} KBPS",
@@ -347,6 +356,9 @@ class VoiceMaster(BaseCog):
             raise BotError("No puedes **rechazarte** a ti mismo.")
         await self._edit_overwrite(channel, target, self._why(member, "reject"), connect=False)
         if target in channel.members:
+            me = member.guild.me
+            if me is None or not me.guild_permissions.move_members:
+                raise BotError("Necesito el permiso **Mover miembros** para sacar a alguien del canal.")
             await target.move_to(None, reason=self._why(member, "reject"))
         return f"{target.mention} ha sido **rechazado** de tu **canal de voz**"
 
@@ -371,6 +383,9 @@ class VoiceMaster(BaseCog):
 
     async def op_drag(self, member: discord.Member, target: discord.Member) -> str:
         channel, _ = await self._own(member)
+        me = member.guild.me
+        if me is None or not me.guild_permissions.move_members:
+            raise BotError("Necesito el permiso **Mover miembros** para traer usuarios a tu canal.")
         if target.voice is None or target.voice.channel is None:
             raise BotError(f"{target.mention} no está en un **canal de voz**.")
         if target.voice.channel.id == channel.id:
@@ -392,6 +407,14 @@ class VoiceMaster(BaseCog):
             await self._cleanup(before.channel)
 
     async def _create_temp(self, member: discord.Member, hub: discord.VoiceChannel) -> None:
+        me = member.guild.me
+        if me is None or not hub.permissions_for(me).manage_channels or not me.guild_permissions.move_members:
+            import logging
+            logging.getLogger("bot.voicemaster").warning(
+                "Faltan permisos Manage Channels/Move Members en el servidor %s (%s)",
+                member.guild.name, member.guild.id,
+            )
+            return
         now = time.monotonic()
         if now - self._last_create.get(member.id, 0.0) < 5:  # anti-spam: entrar y salir del hub sin parar
             try:
@@ -450,6 +473,12 @@ class VoiceMaster(BaseCog):
         await self.db.execute("DELETE FROM vm_hubs WHERE channel_id = ?", channel.id)
 
     async def send_interface(self, guild: discord.Guild, channel: discord.TextChannel) -> None:
+        me = guild.me
+        if me is None:
+            raise BotError("No pude identificar al bot en este servidor.")
+        perms = channel.permissions_for(me)
+        if not perms.view_channel or not perms.send_messages:
+            raise BotError(f"Necesito **Ver canal** y **Enviar mensajes** en {channel.mention}.")
         if not HAS_V2:
             raise BotError("La interfaz necesita **discord.py 2.6** o superior: `pip install -U discord.py`.")
         thumbnail = guild.icon.with_size(256).url if guild.icon else None
