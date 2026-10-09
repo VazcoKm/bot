@@ -30,11 +30,11 @@ def calculate(a,s):
     if a=="text-length": return f"Caracteres: {len(t)}"
     if a=="word-count": return f"Palabras: {len(w)}"
     if a=="line-count": return f"Líneas: {len(t.splitlines()) if t else 0}"
-    if a=="vowel-count": return f"Vocales: {sum(c.lower() in \"aeiouáéíóúü\" for c in t)}"
-    if a=="consonant-count": return f"Consonantes: {sum(c.isalpha() and c.lower() not in \"aeiouáéíóúü\" for c in t)}"
+    if a=="vowel-count": return f"Vocales: {sum(c.lower() in 'aeiouáéíóúü' for c in t)}"
+    if a=="consonant-count": return f"Consonantes: {sum(c.isalpha() and c.lower() not in 'aeiouáéíóúü' for c in t)}"
     if a=="digit-count": return f"Dígitos: {sum(c.isdigit() for c in t)}"
     if a=="space-count": return f"Espacios: {sum(c.isspace() for c in t)}"
-    if a=="punctuation-count": return f"Puntuación: {sum(unicodedata.category(c).startswith(\"P\") for c in t)}"
+    if a=="punctuation-count": return f"Puntuación: {sum(unicodedata.category(c).startswith('P') for c in t)}"
     if a in ("initials","make-acronym"): return "".join(x[0].upper() for x in w if x)
     if a=="reverse-words": return " ".join(w[::-1])
     if a=="base64-encode": return base64.b64encode(t.encode()).decode()
